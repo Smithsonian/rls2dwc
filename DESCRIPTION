@@ -1,0 +1,21 @@
+Package: RLS2DWC
+Type: Package
+Title: Reef Life Survey to Darwin Core converter
+Version: 0.0.1
+Authors@R: c(
+    person("Andy", "Bell", email = "bellan@si.edu", role = c("cre", "aut")),
+    person("Ross", "Whippo", email = "WhippoR@si.edu", role = "aut"))
+Description: Converts Reef Life Survey Excel workbooks into Darwin Core compatible terms and files. This r package is a utility
+    for extracting data from completed Reef Life Survey (https://reeflifesurvey.com/) datasheets. It validates the species names
+    using the World Register of Marine Species (WorMS) r package (http://www.marinespecies.org/aphia.php?p=taxlist) and converts
+    the data into a Darwin Core (http://rs.tdwg.org/dwc/) compatible format for submission to the Ocean Biogeographic Information
+    system (www.iobis.org).
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+Imports:
+    tidyverse,
+    worrms,
+    lubridate
+RoxygenNote: 6.0.1
+Suggests: testthat
