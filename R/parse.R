@@ -29,9 +29,43 @@ readRLS <- function(xlsx, sheetname="DATA") {
   # RLS workbook equations fill down so there is alot of empty rows at the bottom of the workbook.
   # We will filter out any rows of data that has a Total=0
   df <- fixtime %>% dplyr::filter(Total>0)
+
+  # adds the filesource name to the attribute table
+  df <- df %>% dplyr::mutate(source=filesource) # adds name of the source file
+
+  df <- renameRLS(df)
+
   return(df)
 }
 
 
+#' Internal function to rename columns to match Darwin Core terms
+#'
+#' @param df RLS dataframe imported using readRLS function
+#' @return dataframe with column names renamed
+renameRLS <- function(df){
+  renamed <- df %>%
+    dplyr::rename(SiteID = 'Site No.',
+                  SiteName='Site Name',
+                  decimalLatitude='Latitude',
+                  decimalLongitude='Longitude',
+                  identifiedBy='Diver',
+                  maximumDepthInMeters='Depth',
+                  scientificname='Species'
+                  ) %>%
+    dplyr::mutate(minimumDepthInMeters=maximumDepthInMeters)
+
+  return(renamed)
+}
 
 
+#' Parse unique site names from RLS datasheet
+#'
+#'
+#' @param df RLS dataframe
+#' @return r dataframe with unqiue site names, site ids, latitudes, longitudes
+uniqueSites <- function(df){
+  sites <- df %>% dplyr::select(c(SiteID, SiteName, decimalLatitude, decimalLongitude)) %>%
+    dplyr::distinct()  # pulls distinct locations only
+  return(sites)
+}

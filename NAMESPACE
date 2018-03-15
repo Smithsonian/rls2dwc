@@ -1,1 +1,2 @@
 exportPattern("^[[:alpha:]]+")
+importFrom(magrittr,"%>%") # https://stackoverflow.com/questions/27947344/r-use-magrittr-pipe-operator-in-self-written-package
