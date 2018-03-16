@@ -1,0 +1,147 @@
+---
+title: "Reef Life Survey 2 Darwin Core Example"
+author: "Andy Bell (bellan@si.edu)"
+date: "3/16/2018"
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+## About
+
+This example  will walk through processing a reef life survey datasheet using the `rls2dwc` package. The example dataset is survey data from Hawaii in 2017. 
+
+
+## Setup
+
+Install the `rls2dwc` package from github using `devtools`.
+
+```{r loadpackage}
+#install.packages("devtools") # uncomment if you have not already installed the devtools package
+#devtools::install_github("Smithsonian/rls2dwc")
+library(rls2dwc)
+```
+
+## Import reef life survey dataframe into R
+
+The function `readRLS` cleans up the header, combines date and time columns and adds a source column using the filename of the excel spreadsheet. The function takes the path to the excel file to load and (optional) the name of the tab. The name of the tab with the data should be provided if different from the default value of 'DATA'.
+
+
+```{r loadRls}
+rlsdata <- readRLS(xlsx = "../example_data.xlsx", sheetname = "DATA") # loads the excel spreadsheet by providing path & sheetname with data
+
+head(rlsdata) 
+```
+
+## Verifying species names
+
+The raw data loaded from the reef life survey datasheet needs to have all the scientific names validated. We will use the [World Register of Marine Species](http://www.marinespecies.org/) to validate all the scientific names in the data sheet. This is an interactive process..... the first pass will try to match all the scientific names and then return the unmatched values. It is up to the user to figure out what is wrong with the scientific name and then correct it. Once the names have been corrected the data must then be validated again against WoRMS. Note: verifying against the WoRMS webservice requires an internet connection. 
+
+```{r verify}
+# inital attempt to validate species names against worms
+verify_sciName(rlsdata, dryrun=TRUE)
+
+```
+
+The inital attempt to validate scientific names against WoRMS was generally pretty successful. Only 10 name of out 60 scientific names did not get a match. A couple of these names look like they will be easily fixed - several have the format of 'genus sp.'. Let's remove the 'sp.' from the name and try again. 
+
+
+
+```{r verify2}
+rlsdata2 <- rlsdata %>% 
+  replace_sciName("Acanthurus sp", "Acanthurus") %>% 
+  replace_sciName("Scaridae sp.", "Scaridae") %>% 
+  replace_sciName("Abudefduf sp.", "Abudefduf")
+
+verify_sciName(rlsdata2, dryrun=TRUE)
+
+```
+
+Great! That fixed those three scientific names. It's ok to have the records at the genus level. The best practice is to use the lowest full identifiable name in the scientific name field. The rest of the scientific names will have to be verified manually by going to [World Register of Marine Species](http://www.marinespecies.org/) and figuring out the correct. There are several records that have had genus name changes and/or spelling corrections.
+
+
+```{r verify3}
+rlsdata3 <- rlsdata2 %>%  
+  replace_sciName("Ophiodesoma spectabilis", "Opheodesoma spectabilis") %>% 
+  replace_sciName("Osterhinchus maculiferus", "Ostorhinchus maculiferus") %>% 
+  replace_sciName("Asteropteryx semipunctatus", "Asterropteryx semipunctata")
+
+verify_sciName(rlsdata3, dryrun=TRUE)
+```
+
+
+At this point, there still are a few more names that need some more effort to correct. Let's leave them in the dataset for the time being as examples of unknown or unvalidated scientific names.
+
+```{r finalVal}
+# verify the scientific names once again but this time let's save the result to an object
+rlsdata_validated <- verify_sciName(rlsdata3, dryrun=FALSE) 
+
+rlsdata_validated # the WoRMS data is joined to our RLS dataframe
+
+```
+
+
+## Gather to long format 
+
+Right now the reef life survey data is in a wide & untidy format. Each row contains multiple sizes classes and counts. In order to make the data tidy, we need to gather all these observations into a long format 
+
+```{r long}
+rlsdata_long <- gather_measures(rlsdata_validated)
+
+head(rlsdata_long %>% select(ID, IndividualCount, measurementValue, measurementType, measurementUnit), 100)
+```
+
+
+## Unique IDs for events and occurrences
+
+Darwin Core requires each event and occurrence to have an unique identifer. For reef life survey data, there is two types of events. The parent event is each dive and the subevent is the dive block and method. 
+
+The parentEventID is built by combining the site ID and the timestamp. 
+The eventID is built by combining the parentEventID, the method and the block.
+
+The occurrences unique identifier is just a universally unique identifier (UUID) that is randomly generated. 
+
+```{r id}
+rlsdata_long_id <- makeIDs(rlsdata_long)
+
+head(rlsdata_long_id %>% select(parentEventID, eventID, SiteID, DateTime, Method, Block, occurrenceID))
+
+
+
+``` 
+
+
+## Darwin Core Tables
+
+Last step.... make the Darwin Core Event, Occurrence & MeasurementOrFact tables!
+
+### Event
+
+```{r dwc_tables_event}
+
+events <- event(rlsdata_long_id)
+
+head(events)
+```
+
+### Occurrence
+
+```{r dwc_tables_occur}
+
+occur <- occurence(rlsdata_long_id)
+
+head(occur)
+```
+
+
+### MeasurementOrFact
+
+```{r dwc_tables_mof}
+
+measOrFact <- emof(rlsdata_long_id)
+
+head(measOrFact)
+```

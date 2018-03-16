@@ -7,7 +7,7 @@ Converts a Reef life Survey spreadsheet to a R data frame and aligns the terms w
 
 ```{r}
 install.packages("devtools")
-devtools::install_github("Smithsonian/RLS2DWC")
+devtools::install_github("Smithsonian/rls2dwc")
 ```
 
 ## Example
@@ -40,7 +40,7 @@ locations <- uniqueSites(rlsdata)
 Validate the scientific names using WoRMs and joins the results back to the original data
 
 ```{r}
-verify_sciName(rlsdata, allowUnmatched=FALSE) # verify all unique scientific names against worms and report ones that don't have matches
+verify_sciName(rlsdata, dryrun=TRUE) # verify all unique scientific names against worms and report ones that don't have matches
 
 # fix the scientific names
 rlsdata <- replace_sciName(rlsdata, "Acanthurus sp", "Acanthurus") %>% 
@@ -49,7 +49,7 @@ rlsdata <- replace_sciName(rlsdata, "Acanthurus sp", "Acanthurus") %>%
 
 
 # verify scientific names again 
-v <- verify_sciName(rlsdata, allowUnmatched=TRUE) #  non-matched names retained
+v <- verify_sciName(rlsdata, dryrun=FALSE) #  non-matched names retained
 ```
 
 
