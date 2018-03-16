@@ -4,7 +4,7 @@
 \alias{readRLS}
 \title{Load a RLS workbook to a R data frame}
 \usage{
-readRLS(xlsx, sheetname = "Data")
+readRLS(xlsx, sheetname = "DATA")
 }
 \arguments{
 \item{xlsx}{path to the reef life survey excel workbook}
