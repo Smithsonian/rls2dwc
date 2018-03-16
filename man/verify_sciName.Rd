@@ -4,12 +4,12 @@
 \alias{verify_sciName}
 \title{Verify scientific names using the World Register of Marine Species (WoRMS)}
 \usage{
-verify_sciName(df, allowUnmatched = FALSE)
+verify_sciName(df, dryrun = TRUE)
 }
 \arguments{
 \item{df}{dataframe with scientific names to validate (col should be named scientificname)}
 
-\item{allowUnmatched}{boolean to allow unmatched records (default is false)}
+\item{dryrun}{check for unmatched names. Doesn't join to the dataframe.}
 }
 \value{
 dataframe with matches joined to the rows
