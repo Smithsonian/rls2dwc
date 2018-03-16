@@ -2,7 +2,7 @@
 title: "Reef Life Survey 2 Darwin Core Example"
 author: "Andy Bell (bellan@si.edu)"
 date: "3/16/2018"
-output: html_notebook
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
