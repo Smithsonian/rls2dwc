@@ -20,9 +20,9 @@ makeIDs <- function(df){
 #' @return darwin core compatible occurence table
 occurence <- function(df){
   Occurrence <- df %>%
-    dplyr::rename(ScientificName=scientificname, scientificNameAuthorship=valid_authority, scientificNameID=lsid) %>%
+    dplyr::rename(ScientificName=scientificname, scientificNameAuthorship=valid_authority, scientificNameID=lsid, taxonRank=rank) %>%
     dplyr::mutate(occurrenceStatus="present", basisOfRecord="HumanObservation") %>%
-    dplyr::select(eventID, occurrenceID, ScientificName, scientificNameAuthorship, scientificNameID, kingdom, occurrenceStatus, basisOfRecord)
+    dplyr::select(eventID, occurrenceID, ScientificName, scientificNameAuthorship, scientificNameID, kingdom, taxonRank, occurrenceStatus, basisOfRecord)
   return(Occurrence)
   }
 
@@ -40,4 +40,28 @@ event <- function(df){
                   maximumDepthInMeters, coordinateUncertaintyInMeters, samplingProtocol, eventRemarks) %>%
     dplyr::distinct()
   return(Event)
+}
+
+
+#' Make the Darwin Core extended MeasurementOrFact table
+#'
+#' @param df dataframe with unique IDs for events
+#' @return darwin core compatible eMoF table
+emof <- function(df){
+  fish_lengths <- df %>% dplyr::filter(!is.na(measurementValue)) %>%
+    dplyr::select(eventID, occurrenceID, measurementType, measurementValue, measurementUnit) %>%
+    dplyr::mutate(measurementUnitID = "http://vocab.nerc.ac.uk/collection/P06/current/ULCM/",
+                  measurementTypeID="http://vocab.nerc.ac.uk/collection/P01/current/OBSINDLX/") %>%
+    dplyr::mutate(measurementValue=as.numeric(measurementValue))
+
+  fish_abundance <- df %>%
+    dplyr::select(eventID, occurrenceID, IndividualCount) %>%
+    dplyr::rename(measurementValue=IndividualCount) %>%
+    dplyr::mutate(measurementType="count of individuals",
+                  measurementTypeID="http://vocab.nerc.ac.uk/collection/P01/current/OCOUNT01/")
+
+
+  measures <- dplyr::bind_rows(fish_lengths, fish_abundance)
+
+  return(measures)
 }

@@ -11,6 +11,6 @@ gather_measures <- function(df){
     dplyr::filter(IndividualCount>0) %>% # removes the zero in the inverts columns
     dplyr::select(-c(Total)) %>% # drops the total since it's no longer relevant
     dplyr::mutate(measurementValue=replace(measurementValue, which(measurementValue=="Inverts"), NA)) %>%  # replaces inverts with NAs
-    dplyr::mutate(measurementType=ifelse(measurementValue>0,"length", NA) , measurementUnit=ifelse(measurementValue>0, "cm", NA))
+    dplyr::mutate(measurementType=ifelse(measurementValue>0,"body length", NA) , measurementUnit=ifelse(measurementValue>0, "centimeter", NA))
   return(long)
 }

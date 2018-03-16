@@ -1,12 +1,12 @@
-# verify species names using the World Register of Marine Species (WoRMS)
+# verify scientific names using the World Register of Marine Species (WoRMS)
 
-#' Verify species names using the World Register of Marine Species (WoRMS)
+#' Verify scientific names using the World Register of Marine Species (WoRMS)
 #'
 #'
-#' @param df dataframe with species names to validate (col should be named scientificname)
+#' @param df dataframe with scientific names to validate (col should be named scientificname)
 #' @param allowUnmatched boolean to allow unmatched records (default is false)
 #' @return dataframe with matches joined to the rows
-verify_species <- function(df, allowUnmatched=FALSE){
+verify_sciName <- function(df, allowUnmatched=FALSE){
 
   species_list <- df %>% dplyr::select(scientificname) %>%
     dplyr::distinct() %>% dplyr::pull(scientificname)
