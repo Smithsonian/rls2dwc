@@ -12,7 +12,7 @@ devtools::install_github("Smithsonian/rls2dwc")
 
 ## Example
 
-See link to example markdown for a full example of processing a Reef Life Survey dataset.
+[Full example of processing a Reef Life Survey dataset](https://smithsonian.github.io/rls2dwc/example.nb.html)
 
 
 
